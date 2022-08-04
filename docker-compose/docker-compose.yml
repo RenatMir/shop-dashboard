@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  postgres:
+    container_name: shop-postgres
+    image: postgres:14
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5500:5432
+    volumes:
+      - $HOME/shop-dashboard/storage/postgres/data:/var/lib/postgresql/data/
+      - ./postgres-config/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+networks:
+  local-stack:
+    driver: bridge
