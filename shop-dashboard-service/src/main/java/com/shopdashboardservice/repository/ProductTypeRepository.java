@@ -1,8 +1,8 @@
 package com.shopdashboardservice.repository;
 
 import com.shopdashboardservice.model.ProductType;
-import com.shopdashboardservice.model.ProductTypesListFilter;
-import com.shopdashboardservice.model.ProductTypesListFilter.FILTER_FIELDS;
+import com.shopdashboardservice.model.listfilters.ProductTypesListFilter;
+import com.shopdashboardservice.model.listfilters.ProductTypesListFilter.FILTER_FIELDS;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +15,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import static com.shopdashboardservice.model.ProductTypesListFilter.FILTER_FIELDS.type;
-import static com.shopdashboardservice.model.ProductTypesListFilter.FILTER_FIELDS.offset;
-import static com.shopdashboardservice.model.ProductTypesListFilter.FILTER_FIELDS.limit;
+import static com.shopdashboardservice.model.listfilters.ProductTypesListFilter.FILTER_FIELDS.id;
+import static com.shopdashboardservice.model.listfilters.ProductTypesListFilter.FILTER_FIELDS.type;
+import static com.shopdashboardservice.model.listfilters.ProductTypesListFilter.FILTER_FIELDS.offset;
+import static com.shopdashboardservice.model.listfilters.ProductTypesListFilter.FILTER_FIELDS.limit;
 
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
 import static java.lang.String.format;
@@ -59,7 +60,15 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
         );
     }
 
-    public ProductType getProductTypeByTypeName(Long id) {
+    public Integer getTotalRowCount(ProductTypesListFilter filter) {
+        return namedParameterJdbcTemplate.queryForObject(
+                createSelectQueryByFilter(filter, true),
+                createSqlParameterSourceByFilter(filter),
+                Integer.class
+        );
+    }
+
+    public ProductType getProductTypeById(Long id) {
         List<ProductType> productTypes = getProductTypesByFilter(new ProductTypesListFilter().setId(id));
 
         return productTypes.isEmpty()
@@ -74,7 +83,7 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
 
             return ps;
         }, this::extractUpdateResult);
-        //TODO Handle Optimistic lock
+        handleOptimisticLock(productType, insertResult);
         return productType;
     }
 
@@ -86,7 +95,7 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
 
             return ps;
         }, this::extractUpdateResult);
-        //TODO Handle Optimistic lock
+        handleOptimisticLock(productType, updateResult);
         return productType;
     }
 
@@ -98,10 +107,14 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
         });
     }
 
-    private static String createSelectQueryByFilter(ProductTypesListFilter filter, boolean countSelect) {
+    private String createSelectQueryByFilter(ProductTypesListFilter filter, boolean countSelect) {
         StringBuilder query = new StringBuilder(countSelect
             ? SQL_COUNT_PRODUCT_TYPES
             : SQL_SELECT_PRODUCT_TYPES);
+
+        if(filter.getId() != null){
+            query.append(format(" AND id=(:%s)", id));
+        }
 
         if(StringUtils.isNotBlank(filter.getType())){
             query.append(format(" AND type ILIKE (:%s)", type));
@@ -117,14 +130,15 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
         return query.toString();
     }
 
-    private static SqlParameterSource createSqlParameterSourceByFilter(ProductTypesListFilter filter) {
+    private SqlParameterSource createSqlParameterSourceByFilter(ProductTypesListFilter filter) {
         return new MapSqlParameterSource()
+                .addValue(id.name(), filter.getId())
                 .addValue(type.name(), filter.getType() + "%")
                 .addValue(offset.name(), filter.getPageNumber() * filter.getPageSize())
                 .addValue(limit.name(), filter.getPageSize());
     }
 
-    private static final RowMapper<ProductType> rowMapper = (rs, rowNum) -> {
+    private final RowMapper<ProductType> rowMapper = (rs, rowNum) -> {
         ProductType result = new ProductType();
         result.setId(rs.getLong("id"));
         result.setType(rs.getString("type"));
@@ -136,6 +150,6 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
 
     @Override
     protected String getEntityName() {
-        return "product_type";
+        return "product_types";
     }
 }

@@ -1,7 +1,7 @@
 package com.shopdashboardservice.model.responses.producttype;
 
 import com.shopdashboardservice.model.ProductType;
-import com.shopdashboardservice.model.ProductTypesListFilter;
+import com.shopdashboardservice.model.listfilters.ProductTypesListFilter;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;

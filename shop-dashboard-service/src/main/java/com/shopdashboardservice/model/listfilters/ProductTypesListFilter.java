@@ -1,6 +1,8 @@
-package com.shopdashboardservice.model;
+package com.shopdashboardservice.model.listfilters;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.shopdashboardservice.model.AbstractFilter;
+import com.shopdashboardservice.model.OrderValueProvider;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,13 +20,11 @@ public class ProductTypesListFilter extends AbstractFilter {
 
     @JsonIgnore
     public String getOrderBySql() {
-        return AbstractFilter.getOrderBySql(getOrderBy());
+        return getOrderBySql(getOrderBy());
     }
 
     @Getter
     private enum ORDER_BY implements OrderValueProvider {
-        idAsc("id asc"),
-        idDesc("id desc"),
         typeAsc("type asc"),
         typeDesc("type desc");
 
@@ -36,6 +36,7 @@ public class ProductTypesListFilter extends AbstractFilter {
     }
 
     public enum FILTER_FIELDS {
+        id,
         type,
         offset,
         limit

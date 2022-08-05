@@ -1,7 +1,7 @@
 package com.shopdashboardservice.service;
 
 import com.shopdashboardservice.model.ProductType;
-import com.shopdashboardservice.model.ProductTypesListFilter;
+import com.shopdashboardservice.model.listfilters.ProductTypesListFilter;
 import com.shopdashboardservice.repository.ProductTypeRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,12 @@ public class ProductTypeService {
         return productTypeRepository.getProductTypesByFilter(filter);
     }
 
-    public ProductType getProductTypeByTypeName(Long id) {
-        return productTypeRepository.getProductTypeByTypeName(id);
+    public Integer getTotalRowCount(ProductTypesListFilter filter) {
+        return productTypeRepository.getTotalRowCount(filter);
+    }
+
+    public ProductType getProductTypeById(Long id) {
+        return productTypeRepository.getProductTypeById(id);
     }
 
     public ProductType addProductType(ProductType productType) {

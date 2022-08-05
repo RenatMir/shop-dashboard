@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS shop_dashboard.product_types (
     last_change_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS shop_dashboard.products (
+CREATE TABLE IF NOT EXISTS shop_dashboard.products_to_order (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR ( 255 ) UNIQUE NOT NULL,
     product_type VARCHAR ( 255 ) NOT NULL,
@@ -50,7 +50,7 @@ CREATE TRIGGER product_types_set_version_trg
 
 CREATE TRIGGER products_set_version_trg
     BEFORE INSERT OR UPDATE
-        ON shop_dashboard.products
+        ON shop_dashboard.products_to_order
         FOR EACH ROW
         EXECUTE FUNCTION shop_dashboard.set_version();
 
@@ -63,5 +63,5 @@ CREATE TRIGGER orders_set_version_trg
 
 INSERT INTO shop_dashboard.product_types (type) VALUES ('Drink');
 
-INSERT INTO shop_dashboard.products (name, product_type, price, expiration_days) VALUES ('Coca-Cola 2L', 'Drink', 3.99, 60);
-INSERT INTO shop_dashboard.products (name, product_type, price) VALUES ('Coca-Cola 0.5L', 'Drink', 1.50);
+INSERT INTO shop_dashboard.products_to_order (name, product_type, price, expiration_days) VALUES ('Coca-Cola 2L', 'Drink', 3.99, 60);
+INSERT INTO shop_dashboard.products_to_order (name, product_type, price) VALUES ('Coca-Cola 0.5L', 'Drink', 1.50);

@@ -35,18 +35,18 @@ public class ProductTypeController {
     @GetMapping("/list")
     public ResponseEntity<ProductTypeListResponse> getProductTypesByFilter(@RequestBody @Valid ProductTypeListRequest request){
         List<ProductType> productTypes = productTypeService.getProductTypesByFilter(request.getFilter());
+        Integer totalRowCount = productTypeService.getTotalRowCount(request.getFilter());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ProductTypeListResponse()
                         .setProductTypes(productTypes)
                         .setFilter(request.getFilter())
-                        //TODO ADD TOTAL ROW COUNT
-                        .setTotalRowCount(1));
+                        .setTotalRowCount(totalRowCount));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductTypeGetResponse> getProductTypeByTypeName(@Valid final ProductTypeGetDeleteRequest request){
-        ProductType productType =  productTypeService.getProductTypeByTypeName(request.getId());
+    public ResponseEntity<ProductTypeGetResponse> getProductTypeById(@Valid final ProductTypeGetDeleteRequest request){
+        ProductType productType =  productTypeService.getProductTypeById(request.getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ProductTypeGetResponse()

@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ProductGetDeleteResponse {
+public class ProductGetDeleteRequest {
 
     @PositiveOrZero
     @NotNull

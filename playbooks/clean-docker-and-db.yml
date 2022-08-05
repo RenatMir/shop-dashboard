@@ -12,26 +12,26 @@
 
 
   tasks:
-  - name: Docker stop
-    shell:
-      cmd: "docker-compose stop"
-      chdir: "{{ compose_dir }}"
-
-  - name: Docker down
-    shell:
-      cmd: "docker-compose down"
-      chdir: "{{ compose_dir }}"
-
-  - name: Stop all containers
-    shell: "docker ps -aq --filter ancestor={{ item }} | xargs docker stop"
-    with_items: "{{ containers }}"
-
-  - name: Remove all containers
-    shell: "docker ps -aq | xargs docker rm -f"
-
-  - name: Delete all containers and images
-    shell: "docker system prune --all --force"
-    when: rst_mode == "hard"
+#  - name: Docker stop
+#    shell:
+#      cmd: "docker-compose stop"
+#      chdir: "{{ compose_dir }}"
+#
+#  - name: Docker down
+#    shell:
+#      cmd: "docker-compose down"
+#      chdir: "{{ compose_dir }}"
+#
+#  - name: Stop all containers
+#    shell: "docker ps -aq --filter ancestor={{ item }} | xargs docker stop"
+#    with_items: "{{ containers }}"
+#
+#  - name: Remove all containers
+#    shell: "docker ps -aq | xargs docker rm -f"
+#
+#  - name: Delete all containers and images
+#    shell: "docker system prune --all --force"
+#    when: rst_mode == "hard"
 
   - name: Delete database
     file:

@@ -15,16 +15,17 @@ public abstract class BaseRepository<T extends AbstractEntity> {
     protected final static String UPDATE_RESULT_VERSION = "updateResult#version";
     protected final static String UPDATE_RESULT_LAST_CHANGE_DATA = "updateResult#lastChangeDate";
 
-    protected AbstractEntity handleOptimisticLock(T entity, Map<String, Object> updateResult) {
+    protected void handleOptimisticLock(T entity, Map<String, Object> updateResult) {
         if (updateResult == null)
-            return null;
+            return;
 
+        //TODO Handle Optimistic lock
 //        if (getVersion(updateResult) != entity.getVersion() + 1) {
 //            throw new AppException(ErrorCode.OPTIMISTIC_LOCK_FAILED, "Updating %s  with code=%s failed. Optimistic lock failed.",
 //                    getEntityName(), getCode(entity));
 //        }
         entity.setVersion(getVersion(updateResult));
-        return entity.setLastChangeDate(getLastChangeDate(updateResult));
+        entity.setLastChangeDate(getLastChangeDate(updateResult));
     }
 
     protected Map<String, Object> extractUpdateResult(final ResultSet rs) throws SQLException {

@@ -1,6 +1,8 @@
-package com.shopdashboardservice.model;
+package com.shopdashboardservice.model.listfilters;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.shopdashboardservice.model.AbstractFilter;
+import com.shopdashboardservice.model.OrderValueProvider;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,29 +19,19 @@ public class ProductListFilter extends AbstractFilter {
 
     private String productType;
 
-    private Double price;
-
-    private Integer expirationDays;
-
     private List<ProductListFilter.ORDER_BY> orderBy;
 
     @JsonIgnore
     public String getOrderBySql() {
-        return AbstractFilter.getOrderBySql(getOrderBy());
+        return getOrderBySql(getOrderBy());
     }
 
     @Getter
     private enum ORDER_BY implements OrderValueProvider {
-        idAsc("id asc"),
-        idDesc("id desc"),
         nameAsc("name asc"),
         nameDesc("name desc"),
         productTypeAsc("product_type asc"),
-        productTypeDesc("product_type desc"),
-        priceAsc("price asc"),
-        priceDesc("price desc"),
-        expirationDaysAsc("expiration_days asc"),
-        expirationDaysDesc("expiration_days desc");
+        productTypeDesc("product_type desc");
 
         private final String value;
 
@@ -52,8 +44,6 @@ public class ProductListFilter extends AbstractFilter {
         id,
         name,
         productType,
-        price,
-        expirationDays,
         offset,
         limit
     }
