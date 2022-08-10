@@ -16,8 +16,6 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class ProductType extends AbstractEntity {
 
-    private Long id;
-
     @NotBlank
     private String type;
 }

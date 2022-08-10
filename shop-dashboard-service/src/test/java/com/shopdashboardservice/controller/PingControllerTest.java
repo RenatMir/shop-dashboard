@@ -1,8 +1,9 @@
 package com.shopdashboardservice.controller;
 
 import com.shopdashboardservice.AbstractRestTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PingControllerTest extends AbstractRestTest {
 
@@ -10,7 +11,7 @@ public class PingControllerTest extends AbstractRestTest {
     public void pingTest() {
         String response = getRequest(Endpoint.ping, String.class);
 
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals("pong", response);
+        assertNotNull(response);
+        assertEquals("pong", response);
     }
 }

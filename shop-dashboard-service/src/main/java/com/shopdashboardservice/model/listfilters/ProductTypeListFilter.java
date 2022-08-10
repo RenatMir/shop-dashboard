@@ -11,9 +11,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Getter
 @Setter
-public class ProductTypesListFilter extends AbstractFilter {
+public class ProductTypeListFilter extends AbstractFilter {
 
-    private Long id;
     private String type;
 
     private List<ORDER_BY> orderBy;

@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ProductTypeAddUpdateResponse {
+public class ProductTypeAddResponse {
 
     private ProductType productType;
 }

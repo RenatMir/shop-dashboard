@@ -11,6 +11,7 @@ import com.shopdashboardservice.model.responses.order.OrderListResponse;
 import com.shopdashboardservice.service.OrderService;
 import java.util.List;
 import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,14 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
 
     private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @GetMapping("/list")
     public ResponseEntity<OrderListResponse> getOrdersByFilter(@RequestBody @Valid OrderListRequest request) {

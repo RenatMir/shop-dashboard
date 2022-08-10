@@ -1,9 +1,7 @@
 package com.shopdashboardservice.repository;
 
 import com.shopdashboardservice.model.Product;
-import com.shopdashboardservice.model.ProductType;
 import com.shopdashboardservice.model.listfilters.ProductListFilter;
-import com.shopdashboardservice.model.listfilters.ProductTypesListFilter;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;

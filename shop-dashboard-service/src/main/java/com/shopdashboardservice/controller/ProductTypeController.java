@@ -1,21 +1,21 @@
 package com.shopdashboardservice.controller;
 
 import com.shopdashboardservice.model.ProductType;
-import com.shopdashboardservice.model.requests.producttype.ProductTypeAddUpdateRequest;
+import com.shopdashboardservice.model.requests.producttype.ProductTypeAddRequest;
 import com.shopdashboardservice.model.requests.producttype.ProductTypeGetDeleteRequest;
 import com.shopdashboardservice.model.requests.producttype.ProductTypeListRequest;
-import com.shopdashboardservice.model.responses.producttype.ProductTypeAddUpdateResponse;
+import com.shopdashboardservice.model.responses.producttype.ProductTypeAddResponse;
 import com.shopdashboardservice.model.responses.producttype.ProductTypeDeleteResponse;
 import com.shopdashboardservice.model.responses.producttype.ProductTypeGetResponse;
 import com.shopdashboardservice.model.responses.producttype.ProductTypeListResponse;
 import com.shopdashboardservice.service.ProductTypeService;
 import java.util.List;
 import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/product-type")
 public class ProductTypeController {
 
     public final ProductTypeService productTypeService;
-
-    public ProductTypeController(ProductTypeService productTypeService) {
-        this.productTypeService = productTypeService;
-    }
 
     @GetMapping("/list")
     public ResponseEntity<ProductTypeListResponse> getProductTypesByFilter(@RequestBody @Valid ProductTypeListRequest request){
@@ -44,9 +41,9 @@ public class ProductTypeController {
                         .setTotalRowCount(totalRowCount));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductTypeGetResponse> getProductTypeById(@Valid final ProductTypeGetDeleteRequest request){
-        ProductType productType =  productTypeService.getProductTypeById(request.getId());
+    @GetMapping("/{type}")
+    public ResponseEntity<ProductTypeGetResponse> getProductTypeByType(@Valid final ProductTypeGetDeleteRequest request){
+        ProductType productType =  productTypeService.getProductTypeById(request.getType());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ProductTypeGetResponse()
@@ -54,29 +51,20 @@ public class ProductTypeController {
     }
 
     @PutMapping
-    public ResponseEntity<ProductTypeAddUpdateResponse> addProductType(@RequestBody @Valid ProductTypeAddUpdateRequest request){
+    public ResponseEntity<ProductTypeAddResponse> addProductType(@RequestBody @Valid ProductTypeAddRequest request){
         ProductType addProductType = productTypeService.addProductType(request.getProductType());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ProductTypeAddUpdateResponse()
+                .body(new ProductTypeAddResponse()
                         .setProductType(addProductType));
     }
 
-    @PostMapping
-    public ResponseEntity<ProductTypeAddUpdateResponse> updateProductType(@RequestBody @Valid ProductTypeAddUpdateRequest request){
-        ProductType updateProductType = productTypeService.updateProductType(request.getProductType());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ProductTypeAddUpdateResponse()
-                        .setProductType(updateProductType));
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{type}")
     public ResponseEntity<ProductTypeDeleteResponse> deleteProductType(@Valid ProductTypeGetDeleteRequest request){
-        productTypeService.deleteProductType(request.getId());
+        productTypeService.deleteProductType(request.getType());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ProductTypeDeleteResponse()
-                        .setId(request.getId()));
+                        .setType(request.getType()));
     }
 }

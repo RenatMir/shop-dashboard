@@ -13,7 +13,7 @@ public class TestEnvironment {
     private static TestEnvironment testEnvironment;
 
     private final Network network;
-//    private final PostgresDBTestContainer postgres;
+    private final PostgresDBTestContainer postgres;
 
     private TestEnvironment() {
         network = Network.newNetwork();
@@ -21,15 +21,15 @@ public class TestEnvironment {
 //        log.info("Starting test environment");
 //        log.info("--------------------------");
 
-//        postgres = PostgresDBTestContainer.create(network);
+        postgres = PostgresDBTestContainer.create(network);
 
 //        log.info("Postgres started at host={} port={}", postgres.getHost(), postgres.getFirstMappedPort().toString());
     }
 
     public String getPostgresUrl(String database) {
         String url = String.format("jdbc:postgresql://%s:%s/%s",
-                "localhost",
-                5500,
+                postgres.getHost(),
+                postgres.getFirstMappedPort().toString(),
                 database);
 //        log.info("POSTGRES server started at {}}", url);
         return url;

@@ -1,5 +1,6 @@
 package com.shopdashboardservice.model.requests.producttype;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.Getter;
@@ -11,7 +12,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ProductTypeGetDeleteRequest {
 
-    @PositiveOrZero
-    @NotNull
-    private Long id;
+    @NotBlank
+    private String type;
 }

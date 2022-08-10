@@ -66,6 +66,39 @@ public class AbstractRestTest {
         return MAPPER.readValue(response.getResponse().getContentAsString(), responseClass);
     }
 
+    @SneakyThrows
+    protected <T> T postRequest(Endpoint endpoint, String payload, Class<T> responseClass) {
+        String url = String.format("http://localhost:%d/%s", serverPort, endpoint.getPath());
+        MockHttpServletRequestBuilder postRequest = MockMvcRequestBuilders.get(url);
+        postRequest.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(payload);
+
+        MvcResult response = mockMvc.perform(postRequest).andReturn();
+        return MAPPER.readValue(response.getResponse().getContentAsString(), responseClass);
+    }
+
+    @SneakyThrows
+    protected <T> T putRequest(Endpoint endpoint, String payload, Class<T> responseClass) {
+        String url = String.format("http://localhost:%d/%s", serverPort, endpoint.getPath());
+        MockHttpServletRequestBuilder postRequest = MockMvcRequestBuilders.put(url);
+        postRequest.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(payload);
+
+        MvcResult response = mockMvc.perform(postRequest).andReturn();
+        return MAPPER.readValue(response.getResponse().getContentAsString(), responseClass);
+    }
+
+    @SneakyThrows
+    protected <T> T deleteRequest(Endpoint endpoint, Object id, Class<T> responseClass) {
+        String idUriSuffix = id != null ? String.format("/%s", id) : "";
+        String url = String.format("http://localhost:%d/%s%s", serverPort, endpoint.getPath(), idUriSuffix);
+        MockHttpServletRequestBuilder deleteRequest = MockMvcRequestBuilders.delete(url);
+        deleteRequest.contentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+        MvcResult response = mockMvc.perform(deleteRequest).andReturn();
+        return MAPPER.readValue(response.getResponse().getContentAsString(), responseClass);
+    }
+
     @Getter
     @AllArgsConstructor
     protected enum Endpoint {
