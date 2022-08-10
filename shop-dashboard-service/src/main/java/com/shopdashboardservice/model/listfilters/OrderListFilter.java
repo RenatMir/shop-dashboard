@@ -3,7 +3,9 @@ package com.shopdashboardservice.model.listfilters;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shopdashboardservice.model.AbstractFilter;
 import com.shopdashboardservice.model.OrderValueProvider;
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -11,13 +13,15 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ProductListFilter extends AbstractFilter {
+public class OrderListFilter extends AbstractFilter {
 
-    private Long id;
+    private UUID uuid;
 
-    private String name;
+    private Double orderAmount;
 
-    private String productType;
+    private String clientName;
+
+    private Instant orderDate;
 
     private List<ORDER_BY> orderBy;
 
@@ -28,10 +32,12 @@ public class ProductListFilter extends AbstractFilter {
 
     @Getter
     private enum ORDER_BY implements OrderValueProvider {
-        nameAsc("name asc"),
-        nameDesc("name desc"),
-        productTypeAsc("product_type asc"),
-        productTypeDesc("product_type desc");
+        orderDateAsc("order_date asc"),
+        orderDateDesc("order_date desc"),
+        clientNameAsc("client_name asc"),
+        clientNameDesc("client_name desc"),
+        orderAmountAsc("name asc"),
+        orderAmountDesc("name desc");
 
         private final String value;
 
@@ -41,10 +47,12 @@ public class ProductListFilter extends AbstractFilter {
     }
 
     public enum FILTER_FIELDS {
-        id,
-        name,
-        productType,
+        uuid,
+        orderAmount,
+        clientName,
+        orderDate,
         offset,
         limit
     }
+
 }

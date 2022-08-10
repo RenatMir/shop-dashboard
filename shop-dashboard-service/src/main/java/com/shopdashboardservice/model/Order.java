@@ -1,7 +1,7 @@
 package com.shopdashboardservice.model;
 
+import java.sql.Timestamp;
 import java.util.UUID;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -19,13 +19,17 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class Order extends AbstractEntity {
 
-    @NotNull
-    private UUID id;
+    private UUID uuid;
 
     @NotNull
     @Positive
     private Double orderAmount;
 
-    @NotBlank
+    private Timestamp orderDate;
+
+    @NotNull
+    private String clientName;
+
+    @NotNull
     private String config;
 }

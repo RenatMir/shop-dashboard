@@ -19,16 +19,30 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
+    implementation 'org.projectlombok:lombok:1.18.24'
+    testImplementation 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.postgresql:postgresql:42.4.0'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.0'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.7.0'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc:2.7.0'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
+    implementation 'org.postgresql:postgresql:42.4.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc:2.7.2'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.7.2'
+    testImplementation ( group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.6.3') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: '2.7.21'
+    testImplementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.1')
+
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
+    testImplementation 'org.testcontainers:postgresql:1.17.3'
+    testImplementation 'org.testcontainers:testcontainers:1.17.3'
 }
 
 tasks.named('test') {

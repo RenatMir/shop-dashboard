@@ -61,9 +61,3 @@ CREATE TRIGGER orders_set_version_trg
         ON shop_dashboard.orders
         FOR EACH ROW
         EXECUTE FUNCTION shop_dashboard.set_version();
-------------------------------------------------------------------------------------
-
-INSERT INTO shop_dashboard.product_types (type) VALUES ('Drink');
-
-INSERT INTO shop_dashboard.products_to_order (name, product_type, price, expiration_days) VALUES ('Coca-Cola 2L', 'Drink', 3.99, 60);
-INSERT INTO shop_dashboard.products_to_order (name, product_type, price) VALUES ('Coca-Cola 0.5L', 'Drink', 1.50);

@@ -1,20 +1,13 @@
 package com.shopdashboardservice.controller;
 
 import com.shopdashboardservice.model.Product;
-import com.shopdashboardservice.model.ProductType;
-import com.shopdashboardservice.model.listfilters.ProductListFilter;
 import com.shopdashboardservice.model.requests.product.ProductAddUpdateRequest;
 import com.shopdashboardservice.model.requests.product.ProductGetDeleteRequest;
 import com.shopdashboardservice.model.requests.product.ProductListRequest;
-import com.shopdashboardservice.model.requests.producttype.ProductTypeAddUpdateRequest;
-import com.shopdashboardservice.model.requests.producttype.ProductTypeGetDeleteRequest;
 import com.shopdashboardservice.model.responses.product.ProductAddUpdateResponse;
 import com.shopdashboardservice.model.responses.product.ProductDeleteResponse;
 import com.shopdashboardservice.model.responses.product.ProductGetResponse;
 import com.shopdashboardservice.model.responses.product.ProductListResponse;
-import com.shopdashboardservice.model.responses.producttype.ProductTypeAddUpdateResponse;
-import com.shopdashboardservice.model.responses.producttype.ProductTypeDeleteResponse;
-import com.shopdashboardservice.model.responses.producttype.ProductTypeGetResponse;
 import com.shopdashboardservice.service.ProductService;
 import java.util.List;
 import javax.validation.Valid;
