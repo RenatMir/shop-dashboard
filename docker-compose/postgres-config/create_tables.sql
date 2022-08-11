@@ -20,16 +20,35 @@ CREATE TABLE IF NOT EXISTS shop_dashboard.product_types (
     last_change_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS shop_dashboard.products_to_order (
+CREATE TABLE IF NOT EXISTS shop_dashboard.product (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR ( 255 ) UNIQUE NOT NULL,
     product_type VARCHAR ( 255 ) NOT NULL,
-    price NUMERIC NOT NULL,
     expiration_days INTEGER DEFAULT NULL,
     version INTEGER NOT NULL DEFAULT 0,
     last_change_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     FOREIGN KEY (product_type)
         REFERENCES shop_dashboard.product_types (type)
+);
+
+CREATE TABLE IF NOT EXISTS shop_dashboard.products_to_sell (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    product_name VARCHAR ( 255 ) UNIQUE NOT NULL,
+    price NUMERIC NOT NULL,
+    version INTEGER NOT NULL DEFAULT 0,
+    last_change_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (product_name)
+        REFERENCES shop_dashboard.product (name)
+);
+
+CREATE TABLE IF NOT EXISTS shop_dashboard.products_to_order (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    product_name VARCHAR ( 255 ) UNIQUE NOT NULL,
+    price NUMERIC NOT NULL,
+    version INTEGER NOT NULL DEFAULT 0,
+    last_change_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (product_name)
+        REFERENCES shop_dashboard.product (name)
 );
 
 CREATE TABLE IF NOT EXISTS shop_dashboard.orders (
@@ -52,7 +71,7 @@ CREATE TRIGGER product_types_set_version_trg
 
 CREATE TRIGGER products_set_version_trg
     BEFORE INSERT OR UPDATE
-        ON shop_dashboard.products_to_order
+        ON shop_dashboard.products_to_sell
         FOR EACH ROW
         EXECUTE FUNCTION shop_dashboard.set_version();
 
@@ -65,5 +84,5 @@ CREATE TRIGGER orders_set_version_trg
 
 INSERT INTO shop_dashboard.product_types (type) VALUES ('Drink');
 
-INSERT INTO shop_dashboard.products_to_order (name, product_type, price, expiration_days) VALUES ('Coca-Cola 2L', 'Drink', 3.99, 60);
-INSERT INTO shop_dashboard.products_to_order (name, product_type, price) VALUES ('Coca-Cola 0.5L', 'Drink', 1.50);
+INSERT INTO shop_dashboard.product (name, product_type, expiration_days) VALUES ('Coca-Cola 2L', 'Drink', 60);
+INSERT INTO shop_dashboard.product (name, product_type) VALUES ('Coca-Cola 0.5L', 'Drink');

@@ -161,4 +161,12 @@ public class OrderRepository extends BaseRepository<Order> {
     protected String getEntityName() {
         return "orders";
     }
+
+    @Override
+    protected String getCode(Order object) {
+        if (object == null) {
+            return null;
+        }
+        return String.valueOf(object.getUuid());
+    }
 }

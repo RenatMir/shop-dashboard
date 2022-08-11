@@ -24,18 +24,18 @@ import static java.lang.String.format;
 @Repository
 public class ProductRepository extends BaseRepository<Product> {
 
-    private static final String SQL_SELECT_PRODUCTS = "SELECT * FROM shop_dashboard.products_to_order WHERE 1=1";
+    private static final String SQL_SELECT_PRODUCTS = "SELECT * FROM shop_dashboard.product WHERE 1=1";
 
-    private static final String SQL_COUNT_PRODUCTS = "SELECT count(*) FROM shop_dashboard.products_to_order WHERE 1=1";
+    private static final String SQL_COUNT_PRODUCTS = "SELECT count(*) FROM shop_dashboard.product WHERE 1=1";
 
     private static final String SQL_INSERT_PRODUCT =
-            "INSERT INTO shop_dashboard.products_to_order (name, product_type, price, expiration_days) VALUES (?, ?, ?, ?) RETURNING version, last_change_date;";
+            "INSERT INTO shop_dashboard.product (name, product_type, expiration_days) VALUES (?, ?, ?) RETURNING version, last_change_date;";
 
     private static final String SQL_UPDATE_PRODUCT =
-            "UPDATE shop_dashboard.products_to_order SET name=?, product_type=?, price=?, expiration_days=? WHERE id=? RETURNING version, last_change_date;";
+            "UPDATE shop_dashboard.product SET name=?, product_type=?, expiration_days=? WHERE id=? RETURNING version, last_change_date;";
 
     private static final String SQL_DELETE_PRODUCT =
-            "DELETE FROM shop_dashboard.products_to_order WHERE id=?";
+            "DELETE FROM shop_dashboard.product WHERE id=?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -75,8 +75,7 @@ public class ProductRepository extends BaseRepository<Product> {
             PreparedStatement ps = con.prepareStatement(SQL_INSERT_PRODUCT);
             ps.setString(1, product.getName());
             ps.setString(2, product.getProductType());
-            ps.setDouble(3, product.getPrice());
-            ps.setInt(4, product.getExpirationDays());
+            ps.setInt(3, product.getExpirationDays());
 
             return ps;
         }, this::extractUpdateResult);
@@ -89,9 +88,8 @@ public class ProductRepository extends BaseRepository<Product> {
             PreparedStatement ps = con.prepareStatement(SQL_UPDATE_PRODUCT);
             ps.setString(1, product.getName());
             ps.setString(2, product.getProductType());
-            ps.setDouble(3, product.getPrice());
-            ps.setInt(4, product.getExpirationDays());
-            ps.setLong(5, product.getId());
+            ps.setInt(3, product.getExpirationDays());
+            ps.setLong(4, product.getId());
 
             return ps;
         }, this::extractUpdateResult);
@@ -149,7 +147,6 @@ public class ProductRepository extends BaseRepository<Product> {
         product.setId(rs.getLong("id"));
         product.setName(rs.getString("name"));
         product.setProductType(rs.getString("product_type"));
-        product.setPrice(rs.getDouble("price"));
         product.setExpirationDays(rs.getInt("expiration_days"));
         product.setLastChangeDate(getTimestampOrNull(rs, "last_change_date"));
         product.setVersion(rs.getInt("version"));
@@ -159,6 +156,14 @@ public class ProductRepository extends BaseRepository<Product> {
 
     @Override
     protected String getEntityName() {
-        return "products_to_order";
+        return "products_to_sell";
+    }
+
+    @Override
+    protected String getCode(Product object) {
+        if (object == null) {
+            return null;
+        }
+        return String.valueOf(object.getId());
     }
 }

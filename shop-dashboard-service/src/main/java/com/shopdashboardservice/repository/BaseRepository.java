@@ -1,6 +1,8 @@
 package com.shopdashboardservice.repository;
 
 import com.shopdashboardservice.model.AbstractEntity;
+import com.shopdashboardservice.model.exception.AppException;
+import com.shopdashboardservice.model.exception.AppException.ErrorCode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -19,11 +21,14 @@ public abstract class BaseRepository<T extends AbstractEntity> {
         if (updateResult == null)
             return;
 
-        //TODO Handle Optimistic lock
-//        if (getVersion(updateResult) != entity.getVersion() + 1) {
-//            throw new AppException(ErrorCode.OPTIMISTIC_LOCK_FAILED, "Updating %s  with code=%s failed. Optimistic lock failed.",
-//                    getEntityName(), getCode(entity));
-//        }
+        if(entity.getVersion() != null){
+            if (getVersion(updateResult) != entity.getVersion() + 1) {
+                throw new AppException(ErrorCode.OPTIMISTIC_LOCK_FAILED, "Updating %s for %s failed. Optimistic lock failed.",
+                        getEntityName(), getCode(entity));
+            }
+        }
+
+
         entity.setVersion(getVersion(updateResult));
         entity.setLastChangeDate(getLastChangeDate(updateResult));
     }
@@ -50,4 +55,5 @@ public abstract class BaseRepository<T extends AbstractEntity> {
 
     protected abstract String getEntityName();
 
+    protected abstract String getCode(T object);
 }

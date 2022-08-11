@@ -1,7 +1,9 @@
 package com.shopdashboardservice.controller;
 
 import com.shopdashboardservice.AbstractRestTest;
+import com.shopdashboardservice.model.ErrorResponse;
 import com.shopdashboardservice.model.ProductType;
+import com.shopdashboardservice.model.exception.AppException.ErrorCode;
 import com.shopdashboardservice.model.listfilters.ProductTypeListFilter;
 import com.shopdashboardservice.model.requests.producttype.ProductTypeAddRequest;
 import com.shopdashboardservice.model.requests.producttype.ProductTypeListRequest;
@@ -35,6 +37,15 @@ public class ProductTypeControllerTest extends AbstractRestTest {
     }
 
     @Test
+    public void productTypeListErrorTest() {
+        ErrorResponse response = getRequest(
+                Endpoint.productTypeList,
+                ErrorResponse.class
+        );
+
+        assertEquals(ErrorCode.TECHNICAL_ERROR, response.getErrorCode());
+    }
+    @Test
     @SneakyThrows
     public void productTypeGetTest() {
         ProductTypeGetResponse response = getRequest(
@@ -44,6 +55,18 @@ public class ProductTypeControllerTest extends AbstractRestTest {
         );
 
         assertEquals("Drink", response.getProductType().getType());
+    }
+
+    @Test
+    @SneakyThrows
+    public void productTypeGetByErrorTypeTest() {
+        ProductTypeGetResponse response = getRequest(
+                Endpoint.productType,
+                "INVALID_TYPE",
+                ProductTypeGetResponse.class
+        );
+
+        assertNull(response.getProductType());
     }
 
     @Test

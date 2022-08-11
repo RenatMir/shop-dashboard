@@ -28,8 +28,8 @@ public class TestEnvironment {
 
     public String getPostgresUrl(String database) {
         String url = String.format("jdbc:postgresql://%s:%s/%s",
-                postgres.getHost(),
-                postgres.getFirstMappedPort().toString(),
+                "localhost",
+                "5500",
                 database);
 //        log.info("POSTGRES server started at {}}", url);
         return url;

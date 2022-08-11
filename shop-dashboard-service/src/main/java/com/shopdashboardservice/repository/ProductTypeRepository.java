@@ -147,4 +147,12 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
     protected String getEntityName() {
         return "product_types";
     }
+
+    @Override
+    protected String getCode(ProductType object) {
+        if (object == null) {
+            return null;
+        }
+        return String.valueOf(object.getType());
+    }
 }
