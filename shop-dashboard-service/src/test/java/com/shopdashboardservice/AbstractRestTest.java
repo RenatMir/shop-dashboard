@@ -101,7 +101,7 @@ public class AbstractRestTest {
 
     @Getter
     @AllArgsConstructor
-    protected enum Endpoint {
+    public enum Endpoint {
         ping("ping"),
         productList("product/list"),
         product("product"),

@@ -35,7 +35,7 @@ public class ProductRepository extends BaseRepository<Product> {
             "UPDATE shop_dashboard.product SET name=?, product_type=?, expiration_days=? WHERE id=? RETURNING version, last_change_date;";
 
     private static final String SQL_DELETE_PRODUCT =
-            "DELETE FROM shop_dashboard.product WHERE id=?";
+            "DELETE FROM shop_dashboard.product WHERE name=?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -62,8 +62,8 @@ public class ProductRepository extends BaseRepository<Product> {
         );
     }
 
-    public Product getProductById(Long id) {
-        List<Product> products = getProductsByFilter(new ProductListFilter().setId(id));
+    public Product getProductByName(String name) {
+        List<Product> products = getProductsByFilter(new ProductListFilter().setName(name));
 
         return products.isEmpty()
                 ? null
@@ -97,10 +97,10 @@ public class ProductRepository extends BaseRepository<Product> {
         return product;
     }
 
-    public void deleteProduct(Long id) {
+    public void deleteProduct(String name) {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(SQL_DELETE_PRODUCT);
-            ps.setLong(1, id);
+            ps.setString(1, name);
             return ps;
         });
     }

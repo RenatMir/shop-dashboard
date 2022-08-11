@@ -41,9 +41,9 @@ public class ProductController {
                         .setTotalRowCount(totalRowCount));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductGetResponse> getProductById(@Valid final ProductGetDeleteRequest request){
-        Product product =  productService.getProductById(request.getId());
+    @GetMapping("/{name}")
+    public ResponseEntity<ProductGetResponse> getProductByName(@Valid final ProductGetDeleteRequest request){
+        Product product =  productService.getProductByName(request.getName());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ProductGetResponse()
@@ -59,21 +59,21 @@ public class ProductController {
                         .setProduct(addProduct));
     }
 
-    @PostMapping
-    public ResponseEntity<ProductAddUpdateResponse> updateProductType(@RequestBody @Valid ProductAddUpdateRequest request){
-        Product updateProduct = productService.updateProduct(request.getProduct());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ProductAddUpdateResponse()
-                        .setProduct(updateProduct));
-    }
+//    @PostMapping
+//    public ResponseEntity<ProductAddUpdateResponse> updateProductType(@RequestBody @Valid ProductAddUpdateRequest request){
+//        Product updateProduct = productService.updateProduct(request.getProduct());
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(new ProductAddUpdateResponse()
+//                        .setProduct(updateProduct));
+//    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ProductDeleteResponse> deleteProductType(@Valid ProductGetDeleteRequest request){
-        productService.deleteProduct(request.getId());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ProductDeleteResponse()
-                        .setId(request.getId()));
-    }
+//    @DeleteMapping("/{name}")
+//    public ResponseEntity<ProductDeleteResponse> deleteProductType(@Valid ProductGetDeleteRequest request){
+//        productService.deleteProduct(request.getName());
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(new ProductDeleteResponse()
+//                        .setName(request.getName()));
+//    }
 }

@@ -24,8 +24,8 @@ public class ProductService {
         return productRepository.getTotalRowCount(filter);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.getProductById(id);
+    public Product getProductByName(String name) {
+        return productRepository.getProductByName(name);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, value = "transactionManager")
@@ -39,7 +39,7 @@ public class ProductService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, value = "transactionManager")
-    public void deleteProduct(Long id) {
-        productRepository.deleteProduct(id);
+    public void deleteProduct(String name) {
+        productRepository.deleteProduct(name);
     }
 }

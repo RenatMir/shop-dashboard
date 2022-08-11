@@ -9,5 +9,5 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ProductDeleteResponse {
 
-    private Long id;
+    private String name;
 }

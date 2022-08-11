@@ -1,11 +1,11 @@
-package com.shopdashboardservice.controller;
+package com.shopdashboardservice.endpoints;
 
 import com.shopdashboardservice.AbstractRestTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PingControllerTest extends AbstractRestTest {
+public class PingEndpointsTest extends AbstractRestTest {
 
     @Test
     public void pingTest() {

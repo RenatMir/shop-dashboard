@@ -1,6 +1,7 @@
-package com.shopdashboardservice.model.exception;
+package com.shopdashboardservice;
 
 import com.shopdashboardservice.model.ErrorResponse;
+import com.shopdashboardservice.model.exception.AppException;
 import com.shopdashboardservice.model.exception.AppException.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

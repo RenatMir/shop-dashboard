@@ -1,4 +1,4 @@
-package com.shopdashboardservice.controller;
+package com.shopdashboardservice.endpoints;
 
 import com.shopdashboardservice.AbstractRestTest;
 import com.shopdashboardservice.model.ErrorResponse;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional("transactionManager")
-public class ProductTypeControllerTest extends AbstractRestTest {
+public class ProductTypeEndpointsTest extends AbstractRestTest {
 
     @Test
     @SneakyThrows
@@ -46,7 +46,6 @@ public class ProductTypeControllerTest extends AbstractRestTest {
         assertEquals(ErrorCode.TECHNICAL_ERROR, response.getErrorCode());
     }
     @Test
-    @SneakyThrows
     public void productTypeGetTest() {
         ProductTypeGetResponse response = getRequest(
                 Endpoint.productType,
@@ -58,7 +57,6 @@ public class ProductTypeControllerTest extends AbstractRestTest {
     }
 
     @Test
-    @SneakyThrows
     public void productTypeGetByErrorTypeTest() {
         ProductTypeGetResponse response = getRequest(
                 Endpoint.productType,
