@@ -17,7 +17,8 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Transactional("transactionManager")
 public class ProductEndpointsTest extends AbstractRestTest {
@@ -28,14 +29,14 @@ public class ProductEndpointsTest extends AbstractRestTest {
         ProductListFilter filter = new ProductListFilter();
         ProductListRequest request = new ProductListRequest().setFilter(filter);
 
-        ProductListResponse response = postRequest(
+        ProductListResponse response = getListRequest(
                 Endpoint.productList,
                 MAPPER.writeValueAsString(request),
                 ProductListResponse.class
         );
 
-        assertEquals(2, response.getTotalRowCount());
-        assertEquals(2, response.getProducts().size());
+        assertEquals(1, response.getTotalRowCount());
+        assertEquals(1, response.getProducts().size());
     }
 
     @Test
@@ -52,11 +53,11 @@ public class ProductEndpointsTest extends AbstractRestTest {
     public void productGetTest() {
         ProductGetResponse response = getRequest(
                 Endpoint.product,
-                "Coca-Cola 2L",
+                "Test Product Name",
                 ProductGetResponse.class
         );
 
-        assertEquals("Coca-Cola 2L", response.getProduct().getName());
+        assertEquals("Test Product Name", response.getProduct().getName());
     }
 
     @Test

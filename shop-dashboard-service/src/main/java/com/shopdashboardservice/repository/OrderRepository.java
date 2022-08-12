@@ -2,7 +2,6 @@ package com.shopdashboardservice.repository;
 
 import com.shopdashboardservice.model.Order;
 import com.shopdashboardservice.model.listfilters.OrderListFilter;
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +15,12 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.clientName;
-import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.uuid;
+import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.config;
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.limit;
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.offset;
+import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.orderAmount;
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.orderDate;
+import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.uuid;
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
 import static java.lang.String.format;
 
@@ -30,14 +31,17 @@ public class OrderRepository extends BaseRepository<Order> {
 
     private static final String SQL_COUNT_ORDERS = "SELECT count(*) FROM shop_dashboard.orders WHERE 1=1";
 
-    private static final String SQL_INSERT_ORDER =
-            "INSERT INTO shop_dashboard.orders (client_name, order_amount, config) VALUES (?, ?, (?::json)) RETURNING version, last_change_date;";
+    private static final String SQL_INSERT_ORDER_WITH_UUID =
+            "INSERT INTO shop_dashboard.orders (uuid, client_name, order_amount, config) VALUES (:uuid, :clientName, :orderAmount, :config::json) RETURNING version, last_change_date;";
+
+    private static final String SQL_INSERT_ORDER_WITHOUT_UUID =
+            "INSERT INTO shop_dashboard.orders (client_name, order_amount, config) VALUES (:clientName, :orderAmount, :config::json) RETURNING version, last_change_date;";
 
     private static final String SQL_UPDATE_ORDER =
-            "UPDATE shop_dashboard.orders SET client_name=?, order_amount=?, config=(?::json) WHERE uuid=? RETURNING version, last_change_date;";
+            "UPDATE shop_dashboard.orders SET client_name=:clientName, order_amount=:orderAmount, config=to_json(:config::json) WHERE uuid=:uuid RETURNING version, last_change_date;";
 
     private static final String SQL_DELETE_ORDER =
-            "DELETE FROM shop_dashboard.orders WHERE uuid=?";
+            "DELETE FROM shop_dashboard.orders WHERE uuid=:uuid";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -50,9 +54,9 @@ public class OrderRepository extends BaseRepository<Order> {
 
     public List<Order> getOrdersByFilter(OrderListFilter filter) {
         return namedParameterJdbcTemplate.query(
-                createSelectQueryByFilter(filter, false),
-                createSqlParameterSourceByFilter(filter),
-                rowMapper
+            createSelectQueryByFilter(filter, false),
+            createSqlParameterSourceByFilter(filter),
+            rowMapper
         );
     }
 
@@ -73,38 +77,32 @@ public class OrderRepository extends BaseRepository<Order> {
     }
 
     public Order addOrder(Order order) {
-        Map<String, Object> insertResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_INSERT_ORDER);
-            ps.setString(1, order.getClientName());
-            ps.setDouble(2, order.getOrderAmount());
-            ps.setString(3, order.getConfig());
-
-            return ps;
-        }, this::extractUpdateResult);
+        Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
+            order.getUuid() == null
+                ? SQL_INSERT_ORDER_WITHOUT_UUID
+                : SQL_INSERT_ORDER_WITH_UUID,
+            createSqlParameterSource(order),
+            this::extractUpdateResult
+        );
         handleOptimisticLock(order, insertResult);
         return order;
     }
 
     public Order updateOrder(Order order) {
-        Map<String, Object> updateResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_UPDATE_ORDER);
-            ps.setString(1, order.getClientName());
-            ps.setDouble(2, order.getOrderAmount());
-            ps.setString(3, order.getConfig());
-            ps.setObject(4, order.getUuid());
+        Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
+            SQL_UPDATE_ORDER,
+            createSqlParameterSource(order),
+            this::extractUpdateResult
+        );
 
-            return ps;
-        }, this::extractUpdateResult);
         handleOptimisticLock(order, updateResult);
         return order;
     }
 
     public void deleteOrder(UUID uuid) {
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_DELETE_ORDER);
-            ps.setObject(1, uuid);
-            return ps;
-        });
+        namedParameterJdbcTemplate.update(
+            SQL_DELETE_ORDER,
+            createSqlParameterSource(new Order().setUuid(uuid)));
     }
 
     private String createSelectQueryByFilter(OrderListFilter filter, boolean countSelect) {
@@ -136,11 +134,18 @@ public class OrderRepository extends BaseRepository<Order> {
 
     private SqlParameterSource createSqlParameterSourceByFilter(OrderListFilter filter) {
         return new MapSqlParameterSource()
-                .addValue(uuid.name(), filter.getUuid())
-                .addValue(clientName.name(), filter.getClientName() + '%')
-                .addValue(orderDate.name(), filter.getOrderDate())
-                .addValue(offset.name(), filter.getPageNumber() * filter.getPageSize())
-                .addValue(limit.name(), filter.getPageSize());
+            .addValue(uuid.name(), filter.getUuid())
+            .addValue(clientName.name(), filter.getClientName() + '%')
+            .addValue(orderAmount.name(), filter.getOrderAmount())
+            .addValue(offset.name(), filter.getPageNumber() * filter.getPageSize())
+            .addValue(limit.name(), filter.getPageSize());
+    }
+    private SqlParameterSource createSqlParameterSource(Order order) {
+        return new MapSqlParameterSource()
+            .addValue(uuid.name(), order.getUuid())
+            .addValue(clientName.name(), order.getClientName())
+            .addValue(orderAmount.name(), order.getOrderAmount())
+            .addValue(config.name(), order.getConfig());
     }
 
     private final RowMapper<Order> rowMapper = (rs, rowNum) ->  {

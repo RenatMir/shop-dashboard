@@ -67,9 +67,20 @@ public class AbstractRestTest {
     }
 
     @SneakyThrows
-    protected <T> T postRequest(Endpoint endpoint, String payload, Class<T> responseClass) {
+    protected <T> T getListRequest(Endpoint endpoint, String payload, Class<T> responseClass) {
         String url = String.format("http://localhost:%d/%s", serverPort, endpoint.getPath());
         MockHttpServletRequestBuilder postRequest = MockMvcRequestBuilders.get(url);
+        postRequest.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(payload);
+
+        MvcResult response = mockMvc.perform(postRequest).andReturn();
+        return MAPPER.readValue(response.getResponse().getContentAsString(), responseClass);
+    }
+
+    @SneakyThrows
+    protected <T> T postRequest(Endpoint endpoint, String payload, Class<T> responseClass) {
+        String url = String.format("http://localhost:%d/%s", serverPort, endpoint.getPath());
+        MockHttpServletRequestBuilder postRequest = MockMvcRequestBuilders.post(url);
         postRequest.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .content(payload);
 
@@ -108,7 +119,12 @@ public class AbstractRestTest {
         productTypeList("product-type/list"),
         productType("product-type"),
         orderList("order/list"),
-        order("order");
+        order("order"),
+        productToSellList("sell-product/list"),
+        productToSell("sell-product"),
+        productToOrderList("order-product/list"),
+        productToOrder("order-product");
+
         private String path;
     }
 

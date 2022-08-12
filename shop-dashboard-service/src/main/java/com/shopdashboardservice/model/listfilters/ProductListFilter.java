@@ -19,6 +19,8 @@ public class ProductListFilter extends AbstractFilter {
 
     private String productType;
 
+    private Integer expirationDays;
+
     private List<ORDER_BY> orderBy;
 
     @JsonIgnore
@@ -44,6 +46,7 @@ public class ProductListFilter extends AbstractFilter {
         id,
         name,
         productType,
+        expirationDays,
         offset,
         limit
     }

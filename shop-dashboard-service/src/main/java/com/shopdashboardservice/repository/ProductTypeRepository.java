@@ -3,7 +3,6 @@ package com.shopdashboardservice.repository;
 import com.shopdashboardservice.model.ProductType;
 import com.shopdashboardservice.model.listfilters.ProductTypeListFilter;
 import com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +14,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.id;
-import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.type;
-import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.offset;
 import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.limit;
-
+import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.offset;
+import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.type;
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
 import static java.lang.String.format;
 
@@ -35,13 +32,13 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
         "SELECT count(*) FROM shop_dashboard.product_types WHERE 1=1";
 
     private static final String SQL_INSERT_PRODUCT_TYPE =
-        "INSERT INTO shop_dashboard.product_types (type) VALUES (?) RETURNING version, last_change_date;";
+        "INSERT INTO shop_dashboard.product_types (type) VALUES (:type) RETURNING version, last_change_date;";
 
     private static final String SQL_UPDATE_PRODUCT_TYPE =
-        "UPDATE shop_dashboard.product_types SET type=? WHERE type=? RETURNING version, last_change_date;";
+        "UPDATE shop_dashboard.product_types SET type=:type WHERE type=:type RETURNING version, last_change_date;";
 
     private static final String SQL_DELETE_PRODUCT_TYPE =
-        "DELETE FROM shop_dashboard.product_types WHERE type=?";
+        "DELETE FROM shop_dashboard.product_types WHERE type=:type";
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -77,34 +74,28 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
     }
 
     public ProductType addProductType(ProductType productType) {
-        Map<String, Object> insertResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_INSERT_PRODUCT_TYPE);
-            ps.setString(1, productType.getType());
-
-            return ps;
-        }, this::extractUpdateResult);
+        Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
+                SQL_INSERT_PRODUCT_TYPE,
+                createSqlParameterSource(productType),
+                this::extractUpdateResult);
         handleOptimisticLock(productType, insertResult);
         return productType;
     }
 
     public ProductType updateProductType(ProductType productType) {
-        Map<String, Object> updateResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_UPDATE_PRODUCT_TYPE);
-            ps.setString(1, productType.getType());
-            ps.setString(2, productType.getType());
-
-            return ps;
-        }, this::extractUpdateResult);
+        Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
+                SQL_UPDATE_PRODUCT_TYPE,
+                createSqlParameterSource(productType),
+                this::extractUpdateResult);
         handleOptimisticLock(productType, updateResult);
         return productType;
     }
 
     public void deleteProductType(String type) {
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_DELETE_PRODUCT_TYPE);
-            ps.setString(1, type);
-            return ps;
-        });
+        namedParameterJdbcTemplate.update(
+                SQL_DELETE_PRODUCT_TYPE,
+                createSqlParameterSource(new ProductType().setType(type))
+        );
     }
 
     private String createSelectQueryByFilter(ProductTypeListFilter filter, boolean countSelect) {
@@ -132,6 +123,11 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
                 .addValue(type.name(), filter.getType() + "%")
                 .addValue(offset.name(), filter.getPageNumber() * filter.getPageSize())
                 .addValue(limit.name(), filter.getPageSize());
+    }
+
+    private SqlParameterSource createSqlParameterSource(ProductType productType) {
+        return new MapSqlParameterSource()
+                .addValue(type.name(), productType.getType());
     }
 
     private final RowMapper<ProductType> rowMapper = (rs, rowNum) -> {

@@ -1,9 +1,7 @@
 package com.shopdashboardservice.repository;
 
-import com.shopdashboardservice.model.ProductToOrder;
 import com.shopdashboardservice.model.ProductToSell;
 import com.shopdashboardservice.model.listfilters.ProductToSellListFilter;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -29,13 +27,13 @@ public class ProductToSellRepository extends BaseRepository<ProductToSell> {
     private static final String SQL_COUNT_PRODUCTS_TO_SELL = "SELECT count(*) FROM shop_dashboard.products_to_sell WHERE 1=1";
 
     private static final String SQL_INSERT_PRODUCT_TO_SELL =
-            "INSERT INTO shop_dashboard.products_to_sell (product_name, price) VALUES (?, ?) RETURNING version, last_change_date;";
+            "INSERT INTO shop_dashboard.products_to_sell (product_name, price) VALUES (:productName, :price) RETURNING version, last_change_date;";
 
     private static final String SQL_UPDATE_PRODUCT_TO_SELL =
-            "UPDATE shop_dashboard.products_to_sell SET price=? WHERE product_name=? RETURNING version, last_change_date;";
+            "UPDATE shop_dashboard.products_to_sell SET price=:price WHERE product_name=:productName RETURNING version, last_change_date;";
 
     private static final String SQL_DELETE_PRODUCT_TO_SELL =
-            "DELETE FROM shop_dashboard.products_to_sell WHERE product_name=?";
+            "DELETE FROM shop_dashboard.products_to_sell WHERE product_name=:productName";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -71,35 +69,30 @@ public class ProductToSellRepository extends BaseRepository<ProductToSell> {
     }
 
     public ProductToSell addProductToSell(ProductToSell product) {
-        Map<String, Object> insertResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_INSERT_PRODUCT_TO_SELL);
-            ps.setString(1, product.getProductName());
-            ps.setDouble(2, product.getPrice());
-
-            return ps;
-        }, this::extractUpdateResult);
+        Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
+                SQL_INSERT_PRODUCT_TO_SELL,
+                createSqlParameterSource(product),
+                this::extractUpdateResult
+        );
         handleOptimisticLock(product, insertResult);
         return product;
     }
 
     public ProductToSell updateProductToSell(ProductToSell product) {
-        Map<String, Object> updateResult = jdbcTemplate.query(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_UPDATE_PRODUCT_TO_SELL);
-            ps.setDouble(1, product.getPrice());
-            ps.setString(2, product.getProductName());
-
-            return ps;
-        }, this::extractUpdateResult);
+        Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
+                SQL_UPDATE_PRODUCT_TO_SELL,
+                createSqlParameterSource(product),
+                this::extractUpdateResult
+        );
         handleOptimisticLock(product, updateResult);
         return product;
     }
 
     public void deleteProductToSell(String productName) {
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SQL_DELETE_PRODUCT_TO_SELL);
-            ps.setString(1, productName);
-            return ps;
-        });
+        namedParameterJdbcTemplate.update(
+                SQL_DELETE_PRODUCT_TO_SELL,
+                createSqlParameterSource(new ProductToSell().setProductName(productName))
+                );
     }
 
     private SqlParameterSource createSqlParameterSourceByFilter(ProductToSellListFilter filter) {
@@ -108,6 +101,12 @@ public class ProductToSellRepository extends BaseRepository<ProductToSell> {
                 .addValue(price.name(), filter.getPrice())
                 .addValue(offset.name(), filter.getPageNumber() * filter.getPageSize())
                 .addValue(limit.name(), filter.getPageSize());
+    }
+
+    private SqlParameterSource createSqlParameterSource(ProductToSell product) {
+        return new MapSqlParameterSource()
+                .addValue(productName.name(), product.getProductName())
+                .addValue(price.name(), product.getPrice());
     }
 
     private String createSelectQueryByFilter(ProductToSellListFilter filter, boolean countSelect) {

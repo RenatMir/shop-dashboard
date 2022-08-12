@@ -51,6 +51,7 @@ public class OrderListFilter extends AbstractFilter {
         orderAmount,
         clientName,
         orderDate,
+        config,
         offset,
         limit
     }

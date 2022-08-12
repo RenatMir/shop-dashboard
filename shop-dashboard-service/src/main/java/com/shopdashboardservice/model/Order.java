@@ -1,5 +1,6 @@
 package com.shopdashboardservice.model;
 
+import com.shopdashboardservice.validation.JsonValidation;
 import java.sql.Timestamp;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,6 @@ public class Order extends AbstractEntity {
     @NotNull
     private String clientName;
 
-    @NotNull
+    @JsonValidation
     private String config;
 }
