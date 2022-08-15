@@ -50,3 +50,6 @@ shop-dashboard-service/gradlew.bat
 shop-dashboard-service/gradlew
 shop-dashboard-service/.gradle
 shop-dashboard-service/gradle
+
+### UI ###
+shop-dashboard-ui/node_modules
