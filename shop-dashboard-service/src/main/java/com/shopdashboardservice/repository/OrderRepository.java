@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,8 +23,10 @@ import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.orderDate;
 import static com.shopdashboardservice.model.listfilters.OrderListFilter.FILTER_FIELDS.uuid;
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
+import static com.shopdashboardservice.utils.JdbcUtils.sqlParameterSourceExtractor;
 import static java.lang.String.format;
 
+@Slf4j
 @Repository
 public class OrderRepository extends BaseRepository<Order> {
 
@@ -77,32 +80,50 @@ public class OrderRepository extends BaseRepository<Order> {
     }
 
     public Order addOrder(Order order) {
-        Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
-            order.getUuid() == null
+        String query = order.getUuid() == null
                 ? SQL_INSERT_ORDER_WITHOUT_UUID
-                : SQL_INSERT_ORDER_WITH_UUID,
-            createSqlParameterSource(order),
-            this::extractUpdateResult
+                : SQL_INSERT_ORDER_WITH_UUID;
+        SqlParameterSource parameterSource = createSqlParameterSource(order);
+
+        Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
+                query,
+                parameterSource,
+                this::extractUpdateResult
         );
+
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
         handleOptimisticLock(order, insertResult);
         return order;
     }
 
     public Order updateOrder(Order order) {
+        String query = SQL_UPDATE_ORDER;
+        SqlParameterSource parameterSource = createSqlParameterSource(order);
+
         Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
-            SQL_UPDATE_ORDER,
-            createSqlParameterSource(order),
+            query,
+            parameterSource,
             this::extractUpdateResult
         );
+
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
 
         handleOptimisticLock(order, updateResult);
         return order;
     }
 
     public void deleteOrder(UUID uuid) {
+        String query = SQL_DELETE_ORDER;
+        SqlParameterSource parameterSource = createSqlParameterSource(new Order().setUuid(uuid));
+
         namedParameterJdbcTemplate.update(
-            SQL_DELETE_ORDER,
-            createSqlParameterSource(new Order().setUuid(uuid)));
+            query,
+            parameterSource
+        );
+
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
     }
 
     private String createSelectQueryByFilter(OrderListFilter filter, boolean countSelect) {
@@ -128,6 +149,8 @@ public class OrderRepository extends BaseRepository<Order> {
                 query.append(format(" OFFSET (:%s) LIMIT (:%s)", offset, limit));
             }
         }
+
+        log.info("Executing query ({})", query);
 
         return query.toString();
     }

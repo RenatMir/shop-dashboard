@@ -4,6 +4,7 @@ import com.shopdashboardservice.model.ProductToSell;
 import com.shopdashboardservice.model.listfilters.ProductToSellListFilter;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,8 +18,10 @@ import static com.shopdashboardservice.model.listfilters.ProductToSellListFilter
 import static com.shopdashboardservice.model.listfilters.ProductToSellListFilter.FILTER_FIELDS.price;
 import static com.shopdashboardservice.model.listfilters.ProductToSellListFilter.FILTER_FIELDS.productName;
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
+import static com.shopdashboardservice.utils.JdbcUtils.sqlParameterSourceExtractor;
 import static java.lang.String.format;
 
+@Slf4j
 @Repository
 public class ProductToSellRepository extends BaseRepository<ProductToSell> {
 
@@ -69,30 +72,44 @@ public class ProductToSellRepository extends BaseRepository<ProductToSell> {
     }
 
     public ProductToSell addProductToSell(ProductToSell product) {
+        String query = SQL_INSERT_PRODUCT_TO_SELL;
+        SqlParameterSource parameterSource = createSqlParameterSource(product);
+
         Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
-                SQL_INSERT_PRODUCT_TO_SELL,
-                createSqlParameterSource(product),
+                query,
+                parameterSource,
                 this::extractUpdateResult
         );
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
         handleOptimisticLock(product, insertResult);
         return product;
     }
 
     public ProductToSell updateProductToSell(ProductToSell product) {
+        String query = SQL_UPDATE_PRODUCT_TO_SELL;
+        SqlParameterSource parameterSource = createSqlParameterSource(product);
+
         Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
-                SQL_UPDATE_PRODUCT_TO_SELL,
-                createSqlParameterSource(product),
+                query,
+                parameterSource,
                 this::extractUpdateResult
         );
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
         handleOptimisticLock(product, updateResult);
         return product;
     }
 
     public void deleteProductToSell(String productName) {
+        String query = SQL_DELETE_PRODUCT_TO_SELL;
+        SqlParameterSource parameterSource = createSqlParameterSource(new ProductToSell().setProductName(productName));
+
         namedParameterJdbcTemplate.update(
-                SQL_DELETE_PRODUCT_TO_SELL,
-                createSqlParameterSource(new ProductToSell().setProductName(productName))
-                );
+                query,
+                parameterSource
+        );
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
     }
 
     private SqlParameterSource createSqlParameterSourceByFilter(ProductToSellListFilter filter) {
@@ -124,6 +141,8 @@ public class ProductToSellRepository extends BaseRepository<ProductToSell> {
                 query.append(format(" OFFSET (:%s) LIMIT (:%s)", offset, limit));
             }
         }
+
+        log.info("Executing query ({})", query);
 
         return query.toString();
     }

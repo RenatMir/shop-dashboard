@@ -18,6 +18,7 @@ import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.F
 import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.offset;
 import static com.shopdashboardservice.model.listfilters.ProductTypeListFilter.FILTER_FIELDS.type;
 import static com.shopdashboardservice.utils.JdbcUtils.getTimestampOrNull;
+import static com.shopdashboardservice.utils.JdbcUtils.sqlParameterSourceExtractor;
 import static java.lang.String.format;
 
 
@@ -74,28 +75,44 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
     }
 
     public ProductType addProductType(ProductType productType) {
+        String query = SQL_INSERT_PRODUCT_TYPE;
+        SqlParameterSource parameterSource = createSqlParameterSource(productType);
+
         Map<String, Object> insertResult = namedParameterJdbcTemplate.query(
-                SQL_INSERT_PRODUCT_TYPE,
-                createSqlParameterSource(productType),
-                this::extractUpdateResult);
+                query,
+                parameterSource,
+                this::extractUpdateResult
+        );
+        log.info("Executing query {} with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
         handleOptimisticLock(productType, insertResult);
         return productType;
     }
 
     public ProductType updateProductType(ProductType productType) {
+        String query = SQL_UPDATE_PRODUCT_TYPE;
+        SqlParameterSource parameterSource = createSqlParameterSource(productType);
+
         Map<String, Object> updateResult = namedParameterJdbcTemplate.query(
-                SQL_UPDATE_PRODUCT_TYPE,
-                createSqlParameterSource(productType),
-                this::extractUpdateResult);
+                query,
+                parameterSource,
+                this::extractUpdateResult
+        );
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
+
         handleOptimisticLock(productType, updateResult);
         return productType;
     }
 
     public void deleteProductType(String type) {
+        String query = SQL_DELETE_PRODUCT_TYPE;
+        SqlParameterSource parameterSource = createSqlParameterSource(new ProductType().setType(type));
+
         namedParameterJdbcTemplate.update(
-                SQL_DELETE_PRODUCT_TYPE,
-                createSqlParameterSource(new ProductType().setType(type))
+                query,
+                parameterSource
         );
+        log.info("Executing query ({}) with parameters: {}", query, sqlParameterSourceExtractor(parameterSource));
     }
 
     private String createSelectQueryByFilter(ProductTypeListFilter filter, boolean countSelect) {
@@ -113,6 +130,8 @@ public class ProductTypeRepository extends BaseRepository<ProductType> {
                 query.append(format(" OFFSET (:%s) LIMIT (:%s)", FILTER_FIELDS.offset, FILTER_FIELDS.limit));
             }
         }
+
+        log.info("Executing query ({})", query);
 
         return query.toString();
     }
